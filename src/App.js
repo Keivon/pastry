@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
 
-const bearer_token ="Bearer xKl0aI5pFHhDbHBJchLfBY8v8HNjZBB-GIDAZIOTeUc.c7G45Ws76rr-_SSBagAP8a_9A8fyVchKdBd9v9NdmwE"
+const bearer_token = process.env.REACT_APP_bearer_token;
 const url = "http://3d4327f34765.ngrok.io/api/v0.0.1/pastries";
 
 const useStyles = makeStyles((theme) => ({
@@ -24,29 +24,26 @@ const useStyles = makeStyles((theme) => ({
 
 function App() {
   const classes = useStyles();
-
-  const [name, setName] = useState();
-  const [description, setDescription] = useState();
-  const [imageurl, setimageurl] = useState();
-  const [nextbatch, setNextbatch] = useState();
-  const [inventory, setInventory] = useState();
-  const [pastrys, setPastrys] = useState();
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [imageurl, setimageurl] = useState("");
+  const [nextbatch, setNextbatch] = useState("");
+  const [inventory, setInventory] = useState("");
+  const [pastrys, setPastrys] = useState([]);
 
 
 
   useEffect( () => {
      getpastry()
+
   }, []);
   
 
 
-
-
-
-
 const addpastry = (e)=> {
   e.preventDefault();
-  
+
+  if(new Date() <  new Date(nextbatch)) {
   fetch(url, {
     method: 'POST',
     headers: {
@@ -58,11 +55,11 @@ const addpastry = (e)=> {
     "description":description,
     "image":imageurl,
     "nextbatch":new Date(nextbatch).toISOString(),
-    "inventory":inventory
+    "inventory":parseFloat(inventory)
   })})
   .then(res => res.json()) 
   .then(res => console.log(res.message))
-
+  }
   setName("")
   setDescription("")
   setimageurl("")
@@ -104,7 +101,7 @@ const deletepastry = (id) => {
 
   return (
     <div className="App">
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="m">
       <form className={classes.form}  onSubmit = {addpastry}  >
           <TextField
             variant="outlined"
@@ -135,6 +132,7 @@ const deletepastry = (id) => {
            <TextField
             variant="outlined"
             margin="normal"
+            type="url"
             required
             fullWidth
             value={imageurl}
@@ -196,7 +194,13 @@ const deletepastry = (id) => {
           <tr key={pastry.id}>
             <td>{pastry.name}</td>
             <td>{pastry.description}</td>
-            <td>{pastry.image}</td>
+            <td>
+            <TextField
+          multiline
+          rows="4"
+          value= {pastry.image}
+        />
+            </td>
             <td>{pastry.nextbatch}</td>
             <td>{pastry.inventory}</td>
             <td> 
